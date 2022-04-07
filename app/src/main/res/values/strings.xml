@@ -3,7 +3,7 @@
 
     <string name="your_login">Your login</string>
     <string name="your_password">Your password</string>
-    <string name="login">Login</string>
-    <string name="registration">Registration</string>
-    <string name="forgot_password">Forgot password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="forgot_password">Forgot password. Need to reset!</string>
 </resources>

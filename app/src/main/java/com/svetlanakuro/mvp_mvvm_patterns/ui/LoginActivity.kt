@@ -21,10 +21,20 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         presenter = restorePresenter()
         presenter.onAttach(this)
 
-        binding.loginButton.setOnClickListener {
-            presenter.onLogin(
+        binding.signInButton.setOnClickListener {
+            presenter.onSignIn(
                 binding.loginEditText.text.toString(), binding.passwordEditText.text.toString()
             )
+        }
+
+        binding.signUpButton.setOnClickListener {
+            presenter.onSignUp(
+                binding.loginEditText.text.toString(), binding.passwordEditText.text.toString()
+            )
+        }
+
+        binding.forgotPasswordTextView.setOnClickListener {
+            presenter.onForgotPassword(binding.loginEditText.text.toString())
         }
     }
 
@@ -42,8 +52,8 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         return presenter
     }
 
-    override fun setSuccess() {
-        Toast.makeText(this, "Welcome!", Toast.LENGTH_SHORT).show()
+    override fun setSuccess(login: String) {
+        Toast.makeText(this, "Welcome, $login!", Toast.LENGTH_SHORT).show()
     }
 
     override fun setError(error: String) {
@@ -53,8 +63,8 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
     override fun showProgress() {
         binding.loginEditText.visibility = View.GONE
         binding.passwordEditText.visibility = View.GONE
-        binding.loginButton.visibility = View.GONE
-        binding.registrationButton.visibility = View.GONE
+        binding.signInButton.visibility = View.GONE
+        binding.signUpButton.visibility = View.GONE
         binding.forgotPasswordTextView.visibility = View.GONE
         binding.loadingLayout.visibility = View.VISIBLE
         hideKeyboard(this)
@@ -63,10 +73,18 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
     override fun hideProgress() {
         binding.loginEditText.visibility = View.VISIBLE
         binding.passwordEditText.visibility = View.VISIBLE
-        binding.loginButton.visibility = View.VISIBLE
-        binding.registrationButton.visibility = View.VISIBLE
+        binding.signInButton.visibility = View.VISIBLE
+        binding.signUpButton.visibility = View.VISIBLE
         binding.forgotPasswordTextView.visibility = View.VISIBLE
         binding.loadingLayout.visibility = View.GONE
+    }
+
+    override fun addAccountSuccess(login: String) {
+        Toast.makeText(this, "Account for $login is created", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun resetPasswordSuccess(password: String) {
+        Toast.makeText(this, "Your password: $password", Toast.LENGTH_SHORT).show()
     }
 
     private fun hideKeyboard(activity: Activity) {

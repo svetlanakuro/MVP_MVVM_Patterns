@@ -28,29 +28,30 @@
         android:hint="@string/your_password"
         android:importantForAutofill="no"
         android:inputType="textPassword"
+        android:singleLine="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/login_edit_text" />
 
     <Button
-        android:id="@+id/login_button"
+        android:id="@+id/sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_large"
-        android:text="@string/login"
+        android:text="@string/sign_in"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/password_edit_text" />
 
     <Button
-        android:id="@+id/registration_button"
+        android:id="@+id/sign_up_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_large"
-        android:text="@string/registration"
+        android:text="@string/sign_up"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_button" />
+        app:layout_constraintTop_toBottomOf="@id/sign_in_button" />
 
     <TextView
         android:id="@+id/forgot_password_text_view"
@@ -61,7 +62,7 @@
         android:textAlignment="center"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/registration_button" />
+        app:layout_constraintTop_toBottomOf="@id/sign_up_button" />
 
     <FrameLayout
         android:id="@+id/loading_layout"
