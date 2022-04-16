@@ -1,4 +1,4 @@
-package com.svetlanakuro.mvp_mvvm_patterns.ui
+package com.svetlanakuro.mvp_mvvm_patterns.ui.login
 
 import android.app.Activity
 import android.os.Bundle
@@ -6,16 +6,17 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.svetlanakuro.mvp_mvvm_patterns.databinding.ActivityMainBinding
+import com.svetlanakuro.mvp_mvvm_patterns.app
+import com.svetlanakuro.mvp_mvvm_patterns.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity(), LoginContract.View {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityLoginBinding
     private lateinit var presenter: LoginPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         presenter = restorePresenter()
@@ -40,7 +41,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
 
     private fun restorePresenter(): LoginPresenter {
         val presenter = lastNonConfigurationInstance as? LoginPresenter
-        return presenter ?: LoginPresenter()
+        return presenter ?: LoginPresenter(app.loginApi)
     }
 
     override fun getLastNonConfigurationInstance(): Any? {

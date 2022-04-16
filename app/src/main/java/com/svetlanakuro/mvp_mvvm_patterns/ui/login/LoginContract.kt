@@ -1,4 +1,4 @@
-package com.svetlanakuro.mvp_mvvm_patterns.ui
+package com.svetlanakuro.mvp_mvvm_patterns.ui.login
 
 import androidx.annotation.MainThread
 
@@ -31,13 +31,5 @@ class LoginContract {
         fun onSignIn(login: String, password: String)
         fun onSignUp(login: String, password: String)
         fun onForgotPassword(login: String)
-    }
-
-    interface Model {
-
-        fun checkCredentials(login: String, password: String): Boolean
-        fun addAccount(login: String, password: String)
-        fun checkAccount(login: String): Boolean
-        fun resetPassword(login: String): String
     }
 }

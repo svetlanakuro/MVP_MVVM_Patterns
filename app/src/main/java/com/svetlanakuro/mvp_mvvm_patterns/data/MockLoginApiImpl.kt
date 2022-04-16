@@ -1,14 +1,14 @@
-package com.svetlanakuro.mvp_mvvm_patterns.domain
+package com.svetlanakuro.mvp_mvvm_patterns.data
 
-import com.svetlanakuro.mvp_mvvm_patterns.ui.LoginContract
+import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginApi
 
-class LoginModel : LoginContract.Model {
+class MockLoginApiImpl : LoginApi {
 
     private val accounts = mutableMapOf(
         "admin" to "admin", "user" to "user"
     )
 
-    override fun checkCredentials(login: String, password: String): Boolean {
+    override fun signIn(login: String, password: String): Boolean {
         for ((key, value) in accounts) {
             if (key == login && value == password) {
                 return true
@@ -17,8 +17,15 @@ class LoginModel : LoginContract.Model {
         return false
     }
 
-    override fun addAccount(login: String, password: String) {
-        accounts[login] = password
+    override fun signUp(
+        login: String, password: String
+    ): Boolean {
+        return if (!checkAccount(login)) {
+            accounts[login] = password
+            true
+        } else {
+            false
+        }
     }
 
     override fun checkAccount(login: String): Boolean {

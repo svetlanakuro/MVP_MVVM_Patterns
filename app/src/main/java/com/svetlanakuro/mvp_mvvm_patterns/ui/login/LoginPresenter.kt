@@ -1,10 +1,9 @@
-package com.svetlanakuro.mvp_mvvm_patterns.ui
+package com.svetlanakuro.mvp_mvvm_patterns.ui.login
 
 import android.os.*
-import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginModel
-import java.lang.Thread.sleep
+import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginApi
 
-class LoginPresenter : LoginContract.Presenter {
+class LoginPresenter(private val loginApi: LoginApi) : LoginContract.Presenter {
 
     companion object {
 
@@ -15,7 +14,6 @@ class LoginPresenter : LoginContract.Presenter {
         private const val USER_ALREADY_EXISTS = "User with this login already exists"
     }
 
-    private val model = LoginModel()
     private lateinit var view: LoginContract.View
     private val uiHandler = Handler(Looper.getMainLooper())
     private var isSuccess: Boolean = false
@@ -26,18 +24,16 @@ class LoginPresenter : LoginContract.Presenter {
         this.view = view
         if (isSuccess) {
             view.setSuccess(currentLogin)
-        } else {
-            view.setError(errorText)
         }
     }
 
     override fun onSignIn(login: String, password: String) {
         view.showProgress()
         Thread {
-            sleep(2_000)
+            val success = loginApi.signIn(login, password)
             uiHandler.post {
                 view.hideProgress()
-                isSuccess = if (model.checkCredentials(login, password)) {
+                isSuccess = if (success) {
                     view.setSuccess(login)
                     currentLogin = login
                     true
@@ -54,11 +50,10 @@ class LoginPresenter : LoginContract.Presenter {
         if (login.isBlank() || password.isBlank()) {
             showError(EMPTY_FIELDS)
         } else {
-            if (model.checkAccount(login)) {
-                showError(USER_ALREADY_EXISTS)
-            } else {
-                model.addAccount(login, password)
+            if (loginApi.signUp(login, password)) {
                 view.addAccountSuccess(login)
+            } else {
+                showError(USER_ALREADY_EXISTS)
             }
         }
     }
@@ -67,8 +62,8 @@ class LoginPresenter : LoginContract.Presenter {
         if (login.isBlank()) {
             showError(EMPTY_FIELDS)
         } else {
-            if (model.checkAccount(login)) {
-                view.resetPasswordSuccess(model.resetPassword(login))
+            if (loginApi.checkAccount(login)) {
+                view.resetPasswordSuccess(loginApi.resetPassword(login))
             } else {
                 showError(USER_DOES_NOT_EXIST)
             }
