@@ -1,23 +1,15 @@
 package com.svetlanakuro.mvp_mvvm_patterns.ui.login
 
-import android.os.*
-import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginApi
+import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginUsecase
+import com.svetlanakuro.mvp_mvvm_patterns.utils.ErrorStrings
 
-class LoginPresenter(private val loginApi: LoginApi) : LoginContract.Presenter {
-
-    companion object {
-
-        private const val EMPTY_ERROR = ""
-        private const val INVALID_LOGIN_OR_PASSWORD = "Invalid login or password"
-        private const val EMPTY_FIELDS = "Login or password field is empty"
-        private const val USER_DOES_NOT_EXIST = "User with this login does not exist"
-        private const val USER_ALREADY_EXISTS = "User with this login already exists"
-    }
+class LoginPresenter(
+    private val loginUsecase: LoginUsecase
+) : LoginContract.Presenter {
 
     private lateinit var view: LoginContract.View
-    private val uiHandler = Handler(Looper.getMainLooper())
     private var isSuccess: Boolean = false
-    private var errorText: String = EMPTY_ERROR
+    private var errorText: String = ErrorStrings.EMPTY_ERROR.textError
     private var currentLogin: String = ""
 
     override fun onAttach(view: LoginContract.View) {
@@ -29,43 +21,46 @@ class LoginPresenter(private val loginApi: LoginApi) : LoginContract.Presenter {
 
     override fun onSignIn(login: String, password: String) {
         view.showProgress()
-        Thread {
-            val success = loginApi.signIn(login, password)
-            uiHandler.post {
-                view.hideProgress()
-                isSuccess = if (success) {
-                    view.setSuccess(login)
-                    currentLogin = login
-                    true
-                } else {
-                    showError(INVALID_LOGIN_OR_PASSWORD)
-                    false
-                }
-            }
 
-        }.start()
+        loginUsecase.signIn(login, password) { result ->
+            view.hideProgress()
+            isSuccess = if (result) {
+                view.setSuccess(login)
+                currentLogin = login
+                true
+            } else {
+                showError(ErrorStrings.INVALID_LOGIN_OR_PASSWORD.textError)
+                false
+            }
+        }
     }
 
     override fun onSignUp(login: String, password: String) {
         if (login.isBlank() || password.isBlank()) {
-            showError(EMPTY_FIELDS)
+            showError(ErrorStrings.EMPTY_FIELDS.textError)
         } else {
-            if (loginApi.signUp(login, password)) {
-                view.addAccountSuccess(login)
-            } else {
-                showError(USER_ALREADY_EXISTS)
+            loginUsecase.signUp(login, password) { result ->
+                if (result) {
+                    view.addAccountSuccess(login)
+                } else {
+                    showError(ErrorStrings.USER_ALREADY_EXISTS.textError)
+                }
             }
         }
     }
 
     override fun onForgotPassword(login: String) {
         if (login.isBlank()) {
-            showError(EMPTY_FIELDS)
+            showError(ErrorStrings.EMPTY_FIELDS.textError)
         } else {
-            if (loginApi.checkAccount(login)) {
-                view.resetPasswordSuccess(loginApi.resetPassword(login))
-            } else {
-                showError(USER_DOES_NOT_EXIST)
+            loginUsecase.checkAccount(login) { result ->
+                if (result) {
+                    loginUsecase.resetPassword(login) { newPassword ->
+                        view.resetPasswordSuccess(newPassword)
+                    }
+                } else {
+                    showError(ErrorStrings.USER_DOES_NOT_EXIST.textError)
+                }
             }
         }
     }

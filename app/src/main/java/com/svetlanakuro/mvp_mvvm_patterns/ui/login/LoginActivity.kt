@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
 
     private fun restorePresenter(): LoginPresenter {
         val presenter = lastNonConfigurationInstance as? LoginPresenter
-        return presenter ?: LoginPresenter(app.loginApi)
+        return presenter ?: LoginPresenter(app.loginUsecase)
     }
 
     override fun getLastNonConfigurationInstance(): Any? {

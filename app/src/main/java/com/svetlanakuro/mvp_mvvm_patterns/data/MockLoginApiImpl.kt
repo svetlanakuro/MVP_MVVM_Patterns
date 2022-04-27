@@ -1,18 +1,18 @@
 package com.svetlanakuro.mvp_mvvm_patterns.data
 
 import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginApi
+import com.svetlanakuro.mvp_mvvm_patterns.domain.entities.UserProfile
 
 class MockLoginApiImpl : LoginApi {
 
-    private val accounts = mutableMapOf(
-        "admin" to "admin", "user" to "user"
+    private val mockUserProfileRepo = mutableSetOf(
+        UserProfile("admin", "admin"),
+        UserProfile("user", "user"),
     )
 
     override fun signIn(login: String, password: String): Boolean {
-        for ((key, value) in accounts) {
-            if (key == login && value == password) {
-                return true
-            }
+        mockUserProfileRepo.forEach { user ->
+            if (user.login == login && user.password == password) return true
         }
         return false
     }
@@ -21,7 +21,7 @@ class MockLoginApiImpl : LoginApi {
         login: String, password: String
     ): Boolean {
         return if (!checkAccount(login)) {
-            accounts[login] = password
+            mockUserProfileRepo.add(UserProfile(login, password))
             true
         } else {
             false
@@ -29,11 +29,19 @@ class MockLoginApiImpl : LoginApi {
     }
 
     override fun checkAccount(login: String): Boolean {
-        return accounts.containsKey(login)
+        mockUserProfileRepo.forEach { user ->
+            if (user.login == login) return true
+        }
+        return false
     }
 
     override fun resetPassword(login: String): String {
-        accounts[login] = (1000 until 2000).random().toString()
-        return accounts[login].toString()
+        mockUserProfileRepo.forEach { user ->
+            if (user.login == login) {
+                user.password = (1000 until 2000).random().toString()
+                return user.password
+            }
+        }
+        return ""
     }
 }
