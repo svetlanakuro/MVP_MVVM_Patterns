@@ -1,23 +1,15 @@
 package com.svetlanakuro.mvp_mvvm_patterns.ui.login
 
 import com.svetlanakuro.mvp_mvvm_patterns.domain.LoginUsecase
+import com.svetlanakuro.mvp_mvvm_patterns.utils.ErrorStrings
 
 class LoginPresenter(
     private val loginUsecase: LoginUsecase
 ) : LoginContract.Presenter {
 
-    companion object {
-
-        private const val EMPTY_ERROR = ""
-        private const val INVALID_LOGIN_OR_PASSWORD = "Invalid login or password"
-        private const val EMPTY_FIELDS = "Login or password field is empty"
-        private const val USER_DOES_NOT_EXIST = "User with this login does not exist"
-        private const val USER_ALREADY_EXISTS = "User with this login already exists"
-    }
-
     private lateinit var view: LoginContract.View
     private var isSuccess: Boolean = false
-    private var errorText: String = EMPTY_ERROR
+    private var errorText: String = ErrorStrings.EMPTY_ERROR.textError
     private var currentLogin: String = ""
 
     override fun onAttach(view: LoginContract.View) {
@@ -37,7 +29,7 @@ class LoginPresenter(
                 currentLogin = login
                 true
             } else {
-                showError(INVALID_LOGIN_OR_PASSWORD)
+                showError(ErrorStrings.INVALID_LOGIN_OR_PASSWORD.textError)
                 false
             }
         }
@@ -45,13 +37,13 @@ class LoginPresenter(
 
     override fun onSignUp(login: String, password: String) {
         if (login.isBlank() || password.isBlank()) {
-            showError(EMPTY_FIELDS)
+            showError(ErrorStrings.EMPTY_FIELDS.textError)
         } else {
             loginUsecase.signUp(login, password) { result ->
                 if (result) {
                     view.addAccountSuccess(login)
                 } else {
-                    showError(USER_ALREADY_EXISTS)
+                    showError(ErrorStrings.USER_ALREADY_EXISTS.textError)
                 }
             }
         }
@@ -59,7 +51,7 @@ class LoginPresenter(
 
     override fun onForgotPassword(login: String) {
         if (login.isBlank()) {
-            showError(EMPTY_FIELDS)
+            showError(ErrorStrings.EMPTY_FIELDS.textError)
         } else {
             loginUsecase.checkAccount(login) { result ->
                 if (result) {
@@ -67,7 +59,7 @@ class LoginPresenter(
                         view.resetPasswordSuccess(newPassword)
                     }
                 } else {
-                    showError(USER_DOES_NOT_EXIST)
+                    showError(ErrorStrings.USER_DOES_NOT_EXIST.textError)
                 }
             }
         }
