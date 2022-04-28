@@ -8,9 +8,9 @@ class LoginViewModel(
 ) : LoginContract.ViewModel {
 
     override val shouldShowProgress: Publisher<Boolean> = Publisher()
-    override val isSuccess: Publisher<Boolean> = Publisher()
+    override val isSuccess: Publisher<String> = Publisher()
     override val errorText: Publisher<String> = Publisher()
-    override val addAccountSuccess: Publisher<Boolean> = Publisher()
+    override val addAccountSuccess: Publisher<String> = Publisher()
     override val resetPasswordSuccess: Publisher<String> = Publisher()
 
     private var currentLogin: String = ""
@@ -22,10 +22,9 @@ class LoginViewModel(
             shouldShowProgress.post(false)
 
             if (result) {
-                isSuccess.post(true)
+                isSuccess.post(login)
                 currentLogin = login
             } else {
-                isSuccess.post(false)
                 errorText.post(ErrorStrings.INVALID_LOGIN_OR_PASSWORD.textError)
             }
         }
@@ -37,7 +36,7 @@ class LoginViewModel(
         } else {
             loginUsecase.signUp(login, password) { result ->
                 if (result) {
-                    addAccountSuccess.post(true)
+                    addAccountSuccess.post(login)
                 } else {
                     errorText.post(ErrorStrings.USER_ALREADY_EXISTS.textError)
                 }

@@ -9,39 +9,72 @@ import androidx.appcompat.app.AppCompatActivity
 import com.svetlanakuro.mvp_mvvm_patterns.app
 import com.svetlanakuro.mvp_mvvm_patterns.databinding.ActivityLoginBinding
 
-class LoginActivity : AppCompatActivity(), LoginContract.View {
+class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var presenter: LoginPresenter
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = restorePresenter()
-        presenter.onAttach(this)
+        viewModel = restoreViewModel()
 
         binding.signInButton.setOnClickListener {
-            presenter.onSignIn(
+            viewModel.onSignIn(
                 binding.loginEditText.text.toString(), binding.passwordEditText.text.toString()
             )
         }
 
         binding.signUpButton.setOnClickListener {
-            presenter.onSignUp(
+            viewModel.onSignUp(
                 binding.loginEditText.text.toString(), binding.passwordEditText.text.toString()
             )
         }
 
         binding.forgotPasswordTextView.setOnClickListener {
-            presenter.onForgotPassword(binding.loginEditText.text.toString())
+            viewModel.onForgotPassword(binding.loginEditText.text.toString())
         }
+
+        viewModel.shouldShowProgress.subscribe { shouldShow ->
+            if (shouldShow) {
+                showProgress()
+            } else {
+                hideProgress()
+            }
+        }
+
+        viewModel.isSuccess.subscribe { login ->
+            setSuccess(login)
+        }
+
+        viewModel.errorText.subscribe { error ->
+            setError(error)
+        }
+
+        viewModel.addAccountSuccess.subscribe { login ->
+            addAccountSuccess(login)
+        }
+
+        viewModel.resetPasswordSuccess.subscribe { password ->
+            resetPasswordSuccess(password)
+        }
+
     }
 
-    private fun restorePresenter(): LoginPresenter {
-        val presenter = lastNonConfigurationInstance as? LoginPresenter
-        return presenter ?: LoginPresenter(app.loginUsecase)
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.shouldShowProgress.unsubscribeAll()
+        viewModel.isSuccess.unsubscribeAll()
+        viewModel.errorText.unsubscribeAll()
+        viewModel.addAccountSuccess.unsubscribeAll()
+        viewModel.resetPasswordSuccess.unsubscribeAll()
+    }
+
+    private fun restoreViewModel(): LoginViewModel {
+        val presenter = lastNonConfigurationInstance as? LoginViewModel
+        return presenter ?: LoginViewModel(app.loginUsecase)
     }
 
     override fun getLastNonConfigurationInstance(): Any? {
@@ -50,18 +83,18 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
 
     @Deprecated("Deprecated in Java")
     override fun onRetainCustomNonConfigurationInstance(): Any {
-        return presenter
+        return viewModel
     }
 
-    override fun setSuccess(login: String) {
+    private fun setSuccess(login: String) {
         Toast.makeText(this, "Welcome, $login!", Toast.LENGTH_SHORT).show()
     }
 
-    override fun setError(error: String) {
+    private fun setError(error: String) {
         Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
     }
 
-    override fun showProgress() {
+    private fun showProgress() {
         binding.loginEditText.visibility = View.GONE
         binding.passwordEditText.visibility = View.GONE
         binding.signInButton.visibility = View.GONE
@@ -71,7 +104,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         hideKeyboard(this)
     }
 
-    override fun hideProgress() {
+    private fun hideProgress() {
         binding.loginEditText.visibility = View.VISIBLE
         binding.passwordEditText.visibility = View.VISIBLE
         binding.signInButton.visibility = View.VISIBLE
@@ -80,11 +113,11 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         binding.loadingLayout.visibility = View.GONE
     }
 
-    override fun addAccountSuccess(login: String) {
+    private fun addAccountSuccess(login: String) {
         Toast.makeText(this, "Account for $login is created", Toast.LENGTH_SHORT).show()
     }
 
-    override fun resetPasswordSuccess(password: String) {
+    private fun resetPasswordSuccess(password: String) {
         Toast.makeText(this, "Your password: $password", Toast.LENGTH_SHORT).show()
     }
 
