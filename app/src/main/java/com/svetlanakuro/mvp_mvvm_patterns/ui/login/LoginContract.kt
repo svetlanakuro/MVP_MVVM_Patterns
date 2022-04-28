@@ -19,6 +19,8 @@ class LoginContract {
         val shouldShowProgress: Publisher<Boolean>
         val isSuccess: Publisher<Boolean>
         val errorText: Publisher<String>
+        val addAccountSuccess: Publisher<Boolean>
+        val resetPasswordSuccess: Publisher<String>
 
         fun onSignIn(login: String, password: String)
         fun onSignUp(login: String, password: String)
