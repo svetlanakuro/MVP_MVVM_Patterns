@@ -1,20 +1,35 @@
 package com.svetlanakuro.mvp_mvvm_patterns.utils
 
-private typealias Subscriber<T> = (T) -> Unit
+import android.os.Handler
+
+private class Subscriber<T>(
+    private val uiHandler: Handler, private val callback: (T) -> Unit
+) {
+
+    fun invoke(value: T) {
+        uiHandler.post {
+            callback.invoke(value)
+        }
+    }
+}
 
 class Publisher<T> {
 
     private val subscribers: MutableSet<Subscriber<T>> = mutableSetOf()
     private var value: T? = null
 
-    fun subscribe(subscriber: Subscriber<T>) {
+    fun subscribe(uiHandler: Handler, callback: (T) -> Unit) {
+        val subscriber = Subscriber(uiHandler, callback)
         subscribers.add(subscriber)
         value?.let {
-            subscriber.invoke(it)
+            uiHandler.post {
+                subscriber.invoke(it)
+            }
         }
     }
 
-    fun unsubscribe(subscriber: Subscriber<T>) {
+    fun unsubscribe(uiHandler: Handler, callback: (T) -> Unit) {
+        val subscriber = Subscriber(uiHandler, callback)
         subscribers.remove(subscriber)
     }
 

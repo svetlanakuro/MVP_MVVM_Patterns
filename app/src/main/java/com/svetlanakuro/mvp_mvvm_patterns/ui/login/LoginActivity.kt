@@ -1,7 +1,8 @@
 package com.svetlanakuro.mvp_mvvm_patterns.ui.login
 
 import android.app.Activity
-import android.os.Bundle
+import android.graphics.Color
+import android.os.*
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -12,7 +13,8 @@ import com.svetlanakuro.mvp_mvvm_patterns.databinding.ActivityLoginBinding
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var viewModel: LoginViewModel
+    private lateinit var viewModel: LoginContract.ViewModel
+    private val uiHandler: Handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
             viewModel.onForgotPassword(binding.loginEditText.text.toString())
         }
 
-        viewModel.shouldShowProgress.subscribe { shouldShow ->
+        viewModel.shouldShowProgress.subscribe(uiHandler) { shouldShow ->
             if (shouldShow) {
                 showProgress()
             } else {
@@ -45,19 +47,19 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.isSuccess.subscribe { login ->
+        viewModel.isSuccess.subscribe(uiHandler) { login ->
             setSuccess(login)
         }
 
-        viewModel.errorText.subscribe { error ->
+        viewModel.errorText.subscribe(uiHandler) { error ->
             setError(error)
         }
 
-        viewModel.addAccountSuccess.subscribe { login ->
+        viewModel.addAccountSuccess.subscribe(uiHandler) { login ->
             addAccountSuccess(login)
         }
 
-        viewModel.resetPasswordSuccess.subscribe { password ->
+        viewModel.resetPasswordSuccess.subscribe(uiHandler) { password ->
             resetPasswordSuccess(password)
         }
 
@@ -73,12 +75,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun restoreViewModel(): LoginViewModel {
-        val presenter = lastNonConfigurationInstance as? LoginViewModel
-        return presenter ?: LoginViewModel(app.loginUsecase)
-    }
-
-    override fun getLastNonConfigurationInstance(): Any? {
-        return super.getLastNonConfigurationInstance()
+        val viewModel = lastCustomNonConfigurationInstance as? LoginViewModel
+        return viewModel ?: LoginViewModel(app.loginUsecase)
     }
 
     @Deprecated("Deprecated in Java")
@@ -88,10 +86,12 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setSuccess(login: String) {
         Toast.makeText(this, "Welcome, $login!", Toast.LENGTH_SHORT).show()
+        binding.signInButton.setBackgroundColor(Color.GREEN)
     }
 
     private fun setError(error: String) {
         Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+        binding.signInButton.setBackgroundColor(Color.RED)
     }
 
     private fun showProgress() {
